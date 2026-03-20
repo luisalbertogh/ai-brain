@@ -1,2 +1,3 @@
 # ai-brain
-Context management for AI agents.
+
+Knowledge management for AI agents through [context engineering](https://www.philschmid.de/context-engineering).
