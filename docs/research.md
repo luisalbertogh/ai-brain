@@ -10,7 +10,7 @@ The goal is to be able to **maintain a knowledge base** of **various topics** th
 
 The AI agents use the [context window](https://www.datacamp.com/blog/context-window?utm_cid=19589720821&utm_aid=186331392189&utm_campaign=230119_1-ps-other~dsa-tofu~all_2-b2c_3-emea_4-prc_5-na_6-na_7-le_8-pdsh-go_9-nb-e_10-na_11-na&utm_loc=9198645-&utm_mtd=-c&utm_kw=&utm_source=google&utm_medium=paid_search&utm_content=ps-other~emea-en~dsa~tofu~blog~generative-ai&gad_source=1&gad_campaignid=19589720821&gbraid=0AAAAADQ9WsGN7aTGJW9KK09cYyJKn2wJ1&gclid=Cj0KCQjw4PPNBhD8ARIsAMo-icxGq4OsQdIVo8VzB1SA-xtDrOxdTznS4ElVTcufkzr0h2ZIY3uQr4EaAvgZEALw_wcB) to group all the *new information* that will be used to tackle the requested tasks in each new conversation. This is the *LLM working memory within every new session*.
 
-The working memory (context window) adds on top of the LLM in-house pretrain or fine-tuned knowledge to build up what the model *knows in each session*.  
+The working memory (context window) adds on top of the LLM in-house pretrained or fine-tuned knowledge to build up what the model *knows in each session*.  
 
 > PROBLEMS WITH THE CONTEXT
 >
@@ -40,7 +40,7 @@ First we need to understand what is the **context window** made of. An AI agent 
 Another way to classify the composition of the context window is by the **type of memory** each content represents or what generated such content. Here, we would have:
 
 - **Short-term memory/working memory** - Only available within a single session: user prompts, system prompts, agent reasoning, tools/RAG outputs. In summary, whatever we have within the context window.
-- **Long-term memory** - Persisted and available across multiple sessions: loaded documents. Knowledge from documents can be loaded on-demand in every single session.
+- **Long-term memory** - Persisted and available across multiple sessions: loaded documents/knowledge graph/databases. Knowledge from documents can be loaded on-demand in every single session.
 - **Procedural** - Inherited knowledge based on the agent features: custom agents and skills. Automatically loaded in every session.
 
 So, given the previous, context engineering needs to cope with the following aspects:
@@ -58,7 +58,7 @@ These are the main strategies applied to implement the previously outlined aspec
 
 ### Write context
 
-> From current context window --> to persistence layer.
+> From current context window → to persistence layer.
 
 - **Long-term memory**. It will be used in future sessions: user preferences, agent behaviour, project knowledge, conversation history.
 - **Short-term memory**. Only for the current session: conversation history, current state.
@@ -67,7 +67,7 @@ These are the main strategies applied to implement the previously outlined aspec
 
 ### Read context
 
-> From persistence layer and tools --> to context window.
+> From persistence layer and tools → to context window.
 
 Here we have to deal with the different types of information sources available for our agent:
 
@@ -104,6 +104,28 @@ Context isolation is important for multiple reasons:
 
 ## Context lifecycle
 
+The context should be automatically managed through a given lifecycle. The lifecycle must ensure that:
+
+- The *long-term memory* is loaded:
+  - **Procedural memories** - Behaviour, skills, guardrails.
+  - **Semantic memories** - Domain knowledge.
+  - **Episodic memories** - Previous conversations, past stories, preferences.
+- The *short-term memory* is tracked:
+  - **Working memory** - Task output, task status, next steps, intermediate results.
+- The context is **compressed and pruned** periodically.
+- Before ending the current session, **the context is saved**:
+  - Last task status, new domain knowledge, new story or last conversation, new preferences.
+
+![Memory types](/docs/pics/memory_types.png)
+
+Additionally to the previous, what could be our baseline for a *healthy* context, we can add:
+
+- **Quality validation** - Is the loaded information useful for the model?
+- **Dynamic tool selection** - Can we help the model to choose the proper tools?
+- **Query augmentation** - Can we help the user to provide a better query?
+
+![Task for agents](/docs/pics/strategies.png)
+
 ```mermaid
 stateDiagram-v2
     [*] --> Initialize
@@ -115,3 +137,24 @@ stateDiagram-v2
     Active --> Archive: Session End
     Archive --> [*]: Context Stored
 ```
+
+## Context management techniques
+
+The techniques and tools described here can be used to implement the a context management lifecycle.
+
+### Memory persistence
+
+To persist the long-term and short-term memories, we can harness the following:
+
+- File system - Use markdown files and other file formats (JSON, YAML, XML, etc) to save memories, templates and instructions on how to use them.
+- Relational databases - Use relational databases like SQLite to easily save memories locally. Add search algorithms like [FTS5](https://www.sqlite.org/fts5.html).
+- Vector databases (RAG)
+
+Hooks
+
+MCP servers
+
+Intermediate AI agents
+
+Agent SDKs
+
