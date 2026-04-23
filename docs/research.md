@@ -229,6 +229,49 @@ Additional techniques can be put in place before re-ranking, to speed-up and imp
 
 - **Filter by metadata**. Use metadata attached to the context/retireved documents and filter based on relevance.
 
+## Context Window Architecture
+
+Is this [proposed architecture](https://github.com/Corneldj/context-engineering/blob/main/Lessons/Module7/Lesson4_Context_Window_Architecture.md) the "Holy Grail" for Context Management?
+
+```
+graph TD
+    subgraph "High Attention Zone (Primacy)"
+        L1[Layer 1: Instructions<br><i>System Prompt, Persona, Rules</i>]
+        L2[Layer 2: User Info<br><i>Preferences, History</i>]
+        L3[Layer 3: Curated Knowledge<br><i>RAG Results</i>]
+        L4[Layer 4: Task/Goal State<br><i>Agent Plan & Status</i>]
+    end
+
+    subgraph "Middle (Lower Attention)"
+        L5[Layer 5: Conversation History]
+        L6[Layer 6: Internal Scratchpad<br><i>Chain-of-Thought</i>]
+        L7[Layer 7: Tool Explanation<br><i>Function Calling Schemas</i>]
+        L8[Layer 8: Security & Guardrails<br><i>Canaries, Defenses</i>]
+        L9[Layer 9: Output Formatting<br><i>JSON, Markdown, etc.</i>]
+        L10[Layer 10: Examples<br><i>Few-Shot Prompts</i>]
+    end
+
+    subgraph "High Attention Zone (Recency)"
+        L11[Layer 11: User's Latest Query]
+    end
+
+    L1 --> L2 --> L3 --> L4 --> L5 --> L6 --> L7 --> L8 --> L9 --> L10 --> L11;
+
+    style L1 fill:#cce5ff,stroke:#333,stroke-width:2px
+    style L2 fill:#d4edff,stroke:#333,stroke-width:1px
+    style L3 fill:#d4edff,stroke:#333,stroke-width:1px
+    style L4 fill:#d4edff,stroke:#333,stroke-width:1px
+    
+    style L5 fill:#f2f2f2,stroke:#333,stroke-width:1px
+    style L6 fill:#f2f2f2,stroke:#333,stroke-width:1px
+    style L7 fill:#f2f2f2,stroke:#333,stroke-width:1px
+    style L8 fill:#f2f2f2,stroke:#333,stroke-width:1px
+    style L9 fill:#f2f2f2,stroke:#333,stroke-width:1px
+    style L10 fill:#f2f2f2,stroke:#333,stroke-width:1px
+
+    style L11 fill:#cce5ff,stroke:#333,stroke-width:2px
+```
+
 Hooks
 
 MCP servers
