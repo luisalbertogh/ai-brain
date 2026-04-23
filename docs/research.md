@@ -23,6 +23,17 @@ The working memory (context window) adds on top of the LLM in-house pretrained o
 - **Restriction of size** - Context has limited length. Load only the necessary information, nothing else. Be picky. Prune the context.
 - **Problems of quality** - Information may be incomplete or inaccurate. Look up for relevant information only. Provide external sources to retrieve valuable and up-to-date data.
 
+### Pillars of Context Design
+
+The pillars of Context Design must be considered when defining a Context Engineering solution:
+
+- Context must be relevant.
+- Context must be consciouse (compressed).
+- Context must be clear.
+- Context must be structured.
+
+See [here](https://github.com/Corneldj/context-engineering/blob/main/Lessons/Module1/Lesson3_Core_Principles.md#1-the-four-pillars-of-context-design).
+
 ### How do we do it?
 
 First we need to understand what is the **context window** made of. An AI agent context can be composed of the following:
@@ -79,6 +90,7 @@ Here the challenge is to provide only the relevant information. As mentioned bef
 
 - **Semantic search** - Retrieve similar data/information.
 - **Rankings** - Use the most recent or latest updated.
+- **Metadata** - Use metadata to classify and filter the context.
 - **Task specific** - Retrieve only data related to a specific task.
 - **Progressive loading** - Retrieve the information bit by bit, first an abstract, then and overview, then, only if needed, the complete information.
 - **Tool selection** - Provide access only to the relevant tools.
@@ -150,6 +162,73 @@ To persist the long-term and short-term memories, we can harness the following:
 - Relational databases - Use relational databases like SQLite to easily save memories locally. Add search algorithms like [FTS5](https://www.sqlite.org/fts5.html).
 - Vector databases (RAG)
 
+### RAG (Retrieval Augmented Generation)
+
+The following features must be considered when implementing a RAG system as part of our Context Management environment:
+
+- Re-ranking - It will optimize retrieval by removing similar outputs. See [here](https://github.com/Corneldj/context-engineering/blob/main/Lessons/Module3/Lesson3_The_Retrieval_Process.md#2-optimizing-retrieval-beyond-basic-similarity)
+- Hybrid search - Combining semantic (Vector DB, embeddings) and keyword search improves the results.
+
+### Context Assembly
+
+These are some useful techniques to implement a proper context window.
+
+#### Context Aware Prompt
+
+It is a good practice to prepare a Context aware system prompt where we clearly indicate where to place the different parts of the context, like the results retrieved by a RAG system. Additionally to standard prompt techniques like stating a ROLE, INSTRUCTIONS and OUTPUT format. Also, outline that **the model should not "invent" if the answer is not known is a good practice to avoid hallucinations**. See [here](https://github.com/Corneldj/context-engineering/blob/main/Lessons/Module3/Lesson4_The_Generation_and_Synthesis_Process.md):
+
+```yaml
+# ROLE
+You are a helpful AI assistant for ACME Inc.
+
+# INSTRUCTIONS
+- Answer the user's QUESTION based ONLY on the provided CONTEXT.
+- If the information to answer the question is not in the CONTEXT, you MUST say, "I do not have enough information to answer that question."
+- Be concise and do not add any information that is not explicitly mentioned in the CONTEXT.
+- For each piece of information you use, you MUST cite its source file in parentheses at the end of the sentence.
+
+# CONTEXT
+---
+**Source:** [Source_1_Filepath_or_URL]
+**Content:** [Content of chunk 1]
+---
+**Source:** [Source_2_Filepath_or_URL]
+**Content:** [Content of chunk 2]
+---
+
+# QUESTION
+[The original user query]
+```
+
+#### Context Sandwich
+
+It is demonstrated that LLms focus more on the information found at the beginning and the end of the context window. Thus, include the most relevant information there, and use the rest to add additional details. See the ["Needle in the Haystack"](https://github.com/Corneldj/context-engineering/blob/main/Lessons/Module4/Lesson1_Mastering_the_Context_Window.md#1-the-needle-in-a-haystack-problem) problem.
+
+### Long Conversation Management
+
+Ideally we should "compress" the context from time to time, so the LLM/agent does not forget everything, but reduce the context size and keep the important parts only, at the same time. Cheaper LLMs can be used for this purpose.
+
+Alternatively, if we do not need the whole conversation, **we can remove the older parts**. See [here](https://github.com/Corneldj/context-engineering/blob/main/Lessons/Module4/Lesson1_Mastering_the_Context_Window.md#2-strategies-for-managing-long-conversations).
+
+#### Context Compression
+
+Several techniques and best practices can be applied with the aim to compress the context. Some are outlined below:
+
+- **Filtering**. Retrieval from RAG can be filtered by a cheaper LLM, ruling out content that is not relevant to the user prompt.
+- **Compression**. Use a LLM to summarize the context, keeping only the relevant information. This can also be applied to the RAG output or to the overall context.
+
+### Re-ranking the Context
+
+For a top-notch accuracy and performance, we need to roll out some kind of **re-ranking** of the content of the context, especially for those outputs coming from RAG applications or any other form of knowledge base or long-running memory we may maintain.
+
+Re-ranking implies "*cross-encoding*". That is, we cannot use embeddings or any other "short-cut" here. We need to cross the user prompt with the content of the documents or of our available information ready to be added to the context. That is a **slow process**.
+
+> Re-ranking will get the set of proposed relevant information (for example, the documents retrieved from a RAG application), check their content and cross it with the user  prompt or among them and score them by relevance, then keep only the top-k most relevant.
+
+Additional techniques can be put in place before re-ranking, to speed-up and improve the process:
+
+- **Filter by metadata**. Use metadata attached to the context/retireved documents and filter based on relevance.
+
 Hooks
 
 MCP servers
@@ -158,3 +237,6 @@ Intermediate AI agents
 
 Agent SDKs
 
+## References
+
+- [Context Engineering traning course](https://github.com/Corneldj/context-engineering)
